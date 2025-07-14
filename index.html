@@ -2,29 +2,35 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Simulateur de Performance - Profil de Risque</title>
+  <title>Simulateur de Performance - Risque & Maturité</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       max-width: 700px;
-      margin: 50px auto;
+      margin: 40px auto;
       padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
       background-color: #f9f9f9;
+      border-radius: 8px;
+      border: 1px solid #ccc;
     }
     h1 {
       text-align: center;
       color: #333;
     }
-    label, #performance {
+    .bloc {
+      margin: 20px 0;
+    }
+    label {
       font-size: 18px;
-      margin-top: 20px;
       display: block;
+      margin-bottom: 5px;
     }
     input[type=range] {
       width: 100%;
-      margin-top: 10px;
+    }
+    .valeur {
+      font-weight: bold;
+      font-size: 16px;
     }
     ul {
       margin-top: 20px;
@@ -34,36 +40,74 @@
       margin-bottom: 8px;
     }
     .note {
+      margin-top: 30px;
       font-size: 14px;
       color: #777;
-      margin-top: 40px;
     }
   </style>
 </head>
 <body>
   <h1>Simulateur d’Espérance de Performance</h1>
-  <label for="risque">Niveau de risque (1 = faible, 7 = élevé) :</label>
-  <input type="range" id="risque" min="1" max="7" step="1" oninput="update()">
+
+  <div class="bloc">
+    <label for="risque">Niveau de risque (1 à 7) :</label>
+    <input type="range" id="risque" min="1" max="7" step="1" oninput="update()">
+    <div>Risque choisi : <span id="valeurRisque" class="valeur"></span></div>
+  </div>
+
+  <div class="bloc">
+    <label for="maturite">Maturité (3 mois à 30 ans) :</label>
+    <input type="range" id="maturite" min="3" max="360" step="3" oninput="update()">
+    <div>Maturité choisie : <span id="valeurMaturite" class="valeur"></span></div>
+  </div>
+
   <div id="performance"><strong>Espérance de performance :</strong> –</div>
   <ul id="produits"></ul>
-  <div class="note">Exemples de produits à titre illustratif. Aucune recommandation personnalisée.</div>
+
+  <div class="note">Exemples de produits fictifs. À adapter selon ton offre réelle.</div>
 
   <script>
+    function moisVersTexte(mois) {
+      if (mois < 12) return `${mois} mois`;
+      const ans = Math.floor(mois / 12);
+      return `${ans} an${ans > 1 ? 's' : ''}`;
+    }
+
     const donnees = {
-      1: { performance: "1,2 %", produits: ["Compte à terme 1 an – 1,2 %"] },
-      2: { performance: "2,0 %", produits: ["Note taux fixe – 2,0 %"] },
-      3: { performance: "3,5 %", produits: ["Structuré taux capé – 3,5 %"] },
-      4: { performance: "4,8 %", produits: ["Note crédit investment grade – 4,8 %"] },
-      5: { performance: "6,0 %", produits: ["Structuré crédit mixte – 6,0 %"] },
-      6: { performance: "7,2 %", produits: ["Autocallable actions Europe – 7,2 %"] },
-      7: { performance: "9,0 %", produits: ["Produit structuré levier actions US – 9,0 %"] }
+      "1-3": { perf: "1.0%", produits: ["Compte à terme 3 mois – 1.0 %"] },
+      "1-12": { perf: "1.5%", produits: ["Compte à terme 1 an – 1.5 %"] },
+      "3-36": { perf: "2.8%", produits: ["Note taux capé 3 ans – 2.8 %"] },
+      "4-60": { perf: "3.5%", produits: ["Note crédit IG 5 ans – 3.5 %"] },
+      "5-120": { perf: "5.0%", produits: ["Structuré hybride 10 ans – 5.0 %"] },
+      "6-240": { perf: "6.5%", produits: ["Autocallable 20 ans – 6.5 %"] },
+      "7-360": { perf: "8.0%", produits: ["Autocallable levier 30 ans – 8.0 %"] }
     };
 
     function update() {
-      const r = document.getElementById('risque').value;
-      const data = donnees[r] || { performance: "–", produits: ["Aucun produit défini"] };
-      document.getElementById('performance').innerHTML = `<strong>Espérance de performance :</strong> ${data.performance}`;
-      document.getElementById('produits').innerHTML = data.produits.map(p => `<li>${p}</li>`).join('');
+      const r = +document.getElementById("risque").value;
+      const m = +document.getElementById("maturite").value;
+
+      document.getElementById("valeurRisque").innerText = r;
+      document.getElementById("valeurMaturite").innerText = moisVersTexte(m);
+
+      let match = null;
+
+      // Recherche d’une correspondance simple dans les clés
+      for (const cle in donnees) {
+        const [risque, maturiteMax] = cle.split("-").map(Number);
+        if (r === risque && m <= maturiteMax) {
+          match = donnees[cle];
+          break;
+        }
+      }
+
+      if (match) {
+        document.getElementById("performance").innerHTML = `<strong>Espérance de performance :</strong> ${match.perf}`;
+        document.getElementById("produits").innerHTML = match.produits.map(p => `<li>${p}</li>`).join("");
+      } else {
+        document.getElementById("performance").innerHTML = `<strong>Espérance de performance :</strong> –`;
+        document.getElementById("produits").innerHTML = "<li>Aucun produit pour cette combinaison</li>";
+      }
     }
 
     update();
