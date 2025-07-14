@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulateur de Performance - Profil de Risque</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 50px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    label, #performance {
+      font-size: 18px;
+      margin-top: 20px;
+      display: block;
+    }
+    input[type=range] {
+      width: 100%;
+      margin-top: 10px;
+    }
+    ul {
+      margin-top: 20px;
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    .note {
+      font-size: 14px;
+      color: #777;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Simulateur d’Espérance de Performance</h1>
+  <label for="risque">Niveau de risque (1 = faible, 7 = élevé) :</label>
+  <input type="range" id="risque" min="1" max="7" step="1" oninput="update()">
+  <div id="performance"><strong>Espérance de performance :</strong> –</div>
+  <ul id="produits"></ul>
+  <div class="note">Exemples de produits à titre illustratif. Aucune recommandation personnalisée.</div>
+
+  <script>
+    const donnees = {
+      1: { performance: "1,2 %", produits: ["Compte à terme 1 an – 1,2 %"] },
+      2: { performance: "2,0 %", produits: ["Note taux fixe – 2,0 %"] },
+      3: { performance: "3,5 %", produits: ["Structuré taux capé – 3,5 %"] },
+      4: { performance: "4,8 %", produits: ["Note crédit investment grade – 4,8 %"] },
+      5: { performance: "6,0 %", produits: ["Structuré crédit mixte – 6,0 %"] },
+      6: { performance: "7,2 %", produits: ["Autocallable actions Europe – 7,2 %"] },
+      7: { performance: "9,0 %", produits: ["Produit structuré levier actions US – 9,0 %"] }
+    };
+
+    function update() {
+      const r = document.getElementById('risque').value;
+      const data = donnees[r] || { performance: "–", produits: ["Aucun produit défini"] };
+      document.getElementById('performance').innerHTML = `<strong>Espérance de performance :</strong> ${data.performance}`;
+      document.getElementById('produits').innerHTML = data.produits.map(p => `<li>${p}</li>`).join('');
+    }
+
+    update();
+  </script>
+</body>
+</html>
